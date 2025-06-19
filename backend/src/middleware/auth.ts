@@ -11,28 +11,37 @@ export interface JwtPayload {
   exp?: number;
 }
 
+const extractAndVerifyToken = (req: AuthRequest): JwtPayload | null => {
+  const authHeader = req.header('Authorization');
+  const token = authHeader?.replace('Bearer ', '');
+  
+  if (!token) {
+    return null;
+  }
+  
+  try {
+    return jwt.verify(token, env.JWT_SECRET) as JwtPayload;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const authMiddleware = (
   req: AuthRequest,
   res: Response,
   next: NextFunction
 ): void => {
   try {
-    // Get token from header
-    const authHeader = req.header('Authorization');
-    const token = authHeader?.replace('Bearer ', '');
-
-    if (!token) {
+    const decoded = extractAndVerifyToken(req);
+    
+    if (!decoded) {
       res.status(401).json({
         success: false,
         message: 'Access denied. No token provided.'
       });
       return;
     }
-
-    // Verify token
-    const decoded = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
     
-    // Add user to request
     req.user = {
       id: decoded.id,
       email: decoded.email,
@@ -64,18 +73,15 @@ export const authMiddleware = (
   }
 };
 
-// Optional auth middleware (doesn't fail if no token)
 export const optionalAuthMiddleware = (
   req: AuthRequest,
   res: Response,
   next: NextFunction
 ): void => {
   try {
-    const authHeader = req.header('Authorization');
-    const token = authHeader?.replace('Bearer ', '');
-
-    if (token) {
-      const decoded = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
+    const decoded = extractAndVerifyToken(req);
+    
+    if (decoded) {
       req.user = {
         id: decoded.id,
         email: decoded.email,
@@ -85,7 +91,6 @@ export const optionalAuthMiddleware = (
 
     next();
   } catch (error) {
-    // Continue without auth if token is invalid
     next();
   }
-}; 
+};   
