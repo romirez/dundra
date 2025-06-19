@@ -173,4 +173,6 @@ export interface EnvConfig {
   GOOGLE_CLOUD_PROJECT_ID?: string;
   GOOGLE_CLOUD_API_KEY?: string;
   GOOGLE_CLOUD_KEY_FILE?: string; // Optional fallback for service account
+  // OpenAI configuration
+  OPENAI_API_KEY?: string;
 }

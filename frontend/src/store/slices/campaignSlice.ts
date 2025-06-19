@@ -5,14 +5,32 @@ interface Character {
   name: string;
   playerName: string;
   class: string;
+  race: string;
   level: number;
-  stats: Record<string, number>;
+  background: string;
+  abilityScores: {
+    strength: number;
+    dexterity: number;
+    constitution: number;
+    intelligence: number;
+    wisdom: number;
+    charisma: number;
+  };
+  skills: string[];
+  equipment: string[];
+  spells: string[];
+  notes: string;
+  imageUrl?: string;
+  // Legacy compatibility
+  stats?: Record<string, number>;
 }
 
 interface Campaign {
   id: string;
   name: string;
   description: string;
+  setting?: string;
+  maxPlayers?: number;
   dmId: string;
   characters: Character[];
   createdAt: string;
@@ -55,6 +73,36 @@ const campaignSlice = createSlice({
         state.currentCampaign = action.payload;
       }
     },
+    addCharacterToCampaign: (state, action: PayloadAction<{ campaignId: string; character: Character }>) => {
+      const { campaignId, character } = action.payload;
+      const campaign = state.campaigns.find(c => c.id === campaignId);
+      if (campaign) {
+        campaign.characters.push(character);
+        campaign.updatedAt = new Date().toISOString();
+      }
+      if (state.currentCampaign?.id === campaignId) {
+        state.currentCampaign.characters.push(character);
+        state.currentCampaign.updatedAt = new Date().toISOString();
+      }
+    },
+    updateCharacterInCampaign: (state, action: PayloadAction<{ campaignId: string; character: Character }>) => {
+      const { campaignId, character } = action.payload;
+      const campaign = state.campaigns.find(c => c.id === campaignId);
+      if (campaign) {
+        const characterIndex = campaign.characters.findIndex(c => c.id === character.id);
+        if (characterIndex !== -1) {
+          campaign.characters[characterIndex] = character;
+          campaign.updatedAt = new Date().toISOString();
+        }
+      }
+      if (state.currentCampaign?.id === campaignId) {
+        const characterIndex = state.currentCampaign.characters.findIndex(c => c.id === character.id);
+        if (characterIndex !== -1) {
+          state.currentCampaign.characters[characterIndex] = character;
+          state.currentCampaign.updatedAt = new Date().toISOString();
+        }
+      }
+    },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
     },
@@ -69,8 +117,13 @@ export const {
   setCurrentCampaign,
   addCampaign,
   updateCampaign,
+  addCharacterToCampaign,
+  updateCharacterInCampaign,
   setLoading,
   setError,
 } = campaignSlice.actions;
 
 export default campaignSlice.reducer;
+
+// Export types for use in components
+export type { Character, Campaign, CampaignState };
