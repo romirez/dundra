@@ -40,3 +40,10 @@
 .read-the-docs {
   color: #888;
 }
+
+/* App-specific styles */
+.App {
+  text-align: center;
+}
+
+/* Additional component styles can go here */
