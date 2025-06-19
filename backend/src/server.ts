@@ -1,5 +1,6 @@
 import { connectDatabase } from '@/config/database';
 import { env } from '@/config/env';
+import analysisRoutes, { setSocketIO, setupAnalysisWebSocket } from '@/routes/analysisRoutes';
 import { cleanupAllSessions, setupAudioRoutes, setupAudioWebSocketServer } from '@/routes/audioRoutes';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
@@ -7,118 +8,44 @@ import app from './app';
 
 const server = createServer(app);
 
-// Initialize Socket.io
+// Configure Socket.io with CORS
 const io = new Server(server, {
   cors: {
-    origin: env.CORS_ORIGIN,
-    methods: ['GET', 'POST'],
-    credentials: true,
-  },
+    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    methods: ["GET", "POST"],
+    credentials: true
+  }
 });
 
-// Setup audio transcription routes
+// Setup audio routes for Socket.io
 setupAudioRoutes(io);
 
 // Setup WebSocket server for audio transcription (alternative approach)
 const audioWebSocketServer = setupAudioWebSocketServer(server);
 
+// Setup analysis routes and WebSocket
+setSocketIO(io);
+app.use('/api/analysis', analysisRoutes);
+setupAnalysisWebSocket(io);
+
 // Socket.io connection handling
 io.on('connection', socket => {
   console.log(`🔌 User connected: ${socket.id}`);
 
-  // Join campaign room
-  socket.on('join-campaign', (campaignId: string) => {
-    socket.join(`campaign-${campaignId}`);
-    console.log(`👥 User ${socket.id} joined campaign ${campaignId}`);
-    socket.to(`campaign-${campaignId}`).emit('user-joined', socket.id);
+  // Join session room for transcription analysis
+  socket.on('join_session', (sessionId: string) => {
+    socket.join(`session_${sessionId}`);
+    console.log(`User ${socket.id} joined session ${sessionId}`);
   });
 
-  // Leave campaign room
-  socket.on('leave-campaign', (campaignId: string) => {
-    socket.leave(`campaign-${campaignId}`);
-    console.log(`👋 User ${socket.id} left campaign ${campaignId}`);
-    socket.to(`campaign-${campaignId}`).emit('user-left', socket.id);
-  });
-
-  // Handle transcription events (legacy - kept for backward compatibility)
-  socket.on('transcription-start', (data: { campaignId: string }) => {
-    console.log(`🎤 Transcription started for campaign ${data.campaignId}`);
-    socket.to(`campaign-${data.campaignId}`).emit('transcription-started', {
-      userId: socket.id,
-      timestamp: new Date(),
-    });
-  });
-
-  socket.on(
-    'transcription-data',
-    (data: { campaignId: string; text: string; isPartial: boolean }) => {
-      console.log(`📝 Transcription data for campaign ${data.campaignId}: ${data.text}`);
-      socket.to(`campaign-${data.campaignId}`).emit('transcription-received', {
-        userId: socket.id,
-        text: data.text,
-        isPartial: data.isPartial,
-        timestamp: new Date(),
-      });
-    }
-  );
-
-  socket.on('transcription-end', (data: { campaignId: string }) => {
-    console.log(`🛑 Transcription ended for campaign ${data.campaignId}`);
-    socket.to(`campaign-${data.campaignId}`).emit('transcription-ended', {
-      userId: socket.id,
-      timestamp: new Date(),
-    });
-  });
-
-  // Handle card generation events
-  socket.on('generate-card', (data: { campaignId: string; type: string; prompt: string }) => {
-    console.log(`🃏 Card generation requested for campaign ${data.campaignId}: ${data.type}`);
-
-    // Simulate card generation (replace with actual AI service call)
-    setTimeout(() => {
-      const mockCard = {
-        id: `card-${Date.now()}`,
-        type: data.type,
-        title: `Generated ${data.type}`,
-        description: `This is a mock ${data.type} generated from: ${data.prompt}`,
-        imageUrl: null,
-        stats:
-          data.type === 'monster'
-            ? {
-                hp: Math.floor(Math.random() * 100) + 20,
-                ac: Math.floor(Math.random() * 10) + 10,
-                speed: '30 ft',
-              }
-            : undefined,
-        createdAt: new Date(),
-      };
-
-      io.to(`campaign-${data.campaignId}`).emit('card-generated', {
-        userId: socket.id,
-        card: mockCard,
-        timestamp: new Date(),
-      });
-    }, 2000);
-  });
-
-  // Handle dice roll events
-  socket.on('dice-roll', (data: { campaignId: string; dice: string; modifier?: number }) => {
-    const result = Math.floor(Math.random() * 20) + 1 + (data.modifier || 0);
-    console.log(
-      `🎲 Dice roll in campaign ${data.campaignId}: ${data.dice} + ${data.modifier || 0} = ${result}`
-    );
-
-    io.to(`campaign-${data.campaignId}`).emit('dice-rolled', {
-      userId: socket.id,
-      dice: data.dice,
-      modifier: data.modifier,
-      result,
-      timestamp: new Date(),
-    });
+  // Leave session room
+  socket.on('leave_session', (sessionId: string) => {
+    socket.leave(`session_${sessionId}`);
+    console.log(`User ${socket.id} left session ${sessionId}`);
   });
 
   socket.on('disconnect', () => {
-    console.log(`❌ User disconnected: ${socket.id}`);
+    console.log(`🔌 User disconnected: ${socket.id}`);
   });
 });
 
@@ -159,6 +86,14 @@ const startServer = async () => {
       } else {
         console.warn('⚠️  Google Cloud Speech-to-Text not configured - audio transcription will not work');
         console.warn('   Set GOOGLE_CLOUD_PROJECT_ID and GOOGLE_CLOUD_API_KEY environment variables');
+      }
+
+      // Log OpenAI configuration status
+      if (env.OPENAI_API_KEY) {
+        console.log(`🧠 OpenAI transcription analysis engine configured`);
+      } else {
+        console.warn('⚠️  OpenAI API key not configured - transcription analysis will not work');
+        console.warn('   Set OPENAI_API_KEY environment variable');
       }
     });
   } catch (error) {

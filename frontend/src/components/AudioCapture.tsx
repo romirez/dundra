@@ -4,6 +4,7 @@ import { AudioService, type SpeakerMapping, type TranscriptionResult } from '../
 import {
     addSpeakerMapping,
     addTranscription,
+    clearSession,
     setAudioStatus
 } from '../store/slices/gameSlice';
 import type { RootState } from '../store/store';
@@ -19,6 +20,7 @@ interface DetectedSpeaker {
   id: string;
   name?: string;
   lastActive: number;
+  needsMapping?: boolean;
 }
 
 const AudioCapture: React.FC<AudioCaptureProps> = ({
@@ -40,6 +42,7 @@ const AudioCapture: React.FC<AudioCaptureProps> = ({
   const [detectedSpeakers, setDetectedSpeakers] = useState<DetectedSpeaker[]>([]);
   const [showSpeakerMapping, setShowSpeakerMapping] = useState(false);
   const [audioLevel, setAudioLevel] = useState(0);
+  const [unmappedSpeakers, setUnmappedSpeakers] = useState<Set<string>>(new Set());
 
   // Initialize audio service
   useEffect(() => {
@@ -62,6 +65,20 @@ const AudioCapture: React.FC<AudioCaptureProps> = ({
       audioServiceRef.current?.dispose();
     };
   }, [campaignId, sessionId]);
+
+  // Auto-show speaker mapping when there are unmapped speakers
+  useEffect(() => {
+    if (unmappedSpeakers.size > 0 && !showSpeakerMapping && isRecording) {
+      setShowSpeakerMapping(true);
+    }
+  }, [unmappedSpeakers.size, showSpeakerMapping, isRecording]);
+
+  // Auto-close speaker mapping when no more unmapped speakers
+  useEffect(() => {
+    if (unmappedSpeakers.size === 0 && showSpeakerMapping) {
+      setShowSpeakerMapping(false);
+    }
+  }, [unmappedSpeakers.size, showSpeakerMapping]);
 
   // Audio level monitoring
   useEffect(() => {
@@ -114,14 +131,14 @@ const AudioCapture: React.FC<AudioCaptureProps> = ({
             : speaker
         );
       } else {
-        return [...prev, { id: speakerId, lastActive: Date.now() }];
+        return [...prev, { id: speakerId, lastActive: Date.now(), needsMapping: true }];
       }
     });
 
-    // Show speaker mapping dialog if this is a new speaker
+    // Check if this speaker needs mapping
     const existingMapping = speakerMappings.find(mapping => mapping.speakerId === speakerId);
     if (!existingMapping) {
-      setShowSpeakerMapping(true);
+      setUnmappedSpeakers(prev => new Set([...prev, speakerId]));
     }
   }, [speakerMappings]);
 
@@ -167,11 +184,18 @@ const AudioCapture: React.FC<AudioCaptureProps> = ({
         isActive: true,
       }));
       
-      // Update detected speakers with name
+      // Remove from unmapped speakers
+      setUnmappedSpeakers(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(speakerId);
+        return newSet;
+      });
+      
+      // Update detected speakers with name and remove mapping flag
       setDetectedSpeakers(prev =>
         prev.map(speaker =>
           speaker.id === speakerId
-            ? { ...speaker, name: playerName }
+            ? { ...speaker, name: playerName, needsMapping: false }
             : speaker
         )
       );
@@ -195,7 +219,7 @@ const AudioCapture: React.FC<AudioCaptureProps> = ({
   };
 
   return (
-    <div className={`bg-white rounded-lg shadow-md p-6 ${className}`}>
+    <div className={`bg-white rounded-lg shadow-md p-6 flex flex-col h-full ${className}`}>
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Audio Transcription</h3>
         <div className={`text-sm font-medium ${getStatusColor()}`}>
@@ -250,23 +274,14 @@ const AudioCapture: React.FC<AudioCaptureProps> = ({
         >
           👥 Map Speakers
         </button>
+        
+        <button
+          onClick={() => dispatch(clearSession())}
+          className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-md transition-colors"
+        >
+          🗑️ Clear
+        </button>
       </div>
-
-      {/* Audio Level Indicator */}
-      {isRecording && (
-        <div className="mb-4">
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-600">Audio Level:</span>
-            <div className="flex-1 bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-green-600 h-2 rounded-full transition-all duration-100"
-                style={{ width: `${Math.min(audioLevel, 100)}%` }}
-              />
-            </div>
-            <span className="text-sm text-gray-600">{Math.round(audioLevel)}%</span>
-          </div>
-        </div>
-      )}
 
       {/* Detected Speakers */}
       {detectedSpeakers.length > 0 && (
@@ -289,49 +304,69 @@ const AudioCapture: React.FC<AudioCaptureProps> = ({
       )}
 
       {/* Recent Transcriptions */}
-      <div className="max-h-48 overflow-y-auto">
+      <div className="flex-1 min-h-0">
         <h4 className="text-sm font-medium text-gray-700 mb-2">Recent Transcriptions:</h4>
-        <div className="space-y-2">
-          {transcriptions.slice(-5).map((transcription, index) => (
-            <div
-              key={transcription.id || index}
-              className={`p-2 rounded text-sm ${
-                transcription.isFinal
-                  ? 'bg-gray-100 text-gray-900'
-                  : 'bg-yellow-50 text-yellow-800 border border-yellow-200'
-              }`}
-            >
-              <div className="flex items-start justify-between">
-                <span className="flex-1">
-                  {transcription.text}
-                </span>
-                <div className="ml-2 text-xs text-gray-500 flex flex-col items-end">
-                  <span>{Math.round(transcription.confidence * 100)}%</span>
-                  {transcription.speakerId && (
-                    <span className="text-blue-600">
-                      {speakerMappings.find((mapping: SpeakerMapping) => mapping.speakerId === transcription.speakerId)?.playerName || 
-                       `Speaker ${transcription.speakerId}`}
+        <div className="h-full overflow-y-auto">
+          <div className="space-y-2 pb-4">
+            {transcriptions.slice(-10).reverse().map((transcription, index) => (
+              <div
+                key={transcription.id || index}
+                className={`p-3 rounded-lg text-sm shadow-sm transition-all duration-200 ${
+                  transcription.isFinal
+                    ? 'bg-white text-gray-900 border border-gray-200'
+                    : 'bg-yellow-50 text-yellow-800 border border-yellow-300 animate-pulse'
+                }`}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 pr-2">
+                    <p className="leading-relaxed">{transcription.text}</p>
+                    {!transcription.isFinal && (
+                      <p className="text-xs text-yellow-600 mt-1 italic">
+                        Live transcription...
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-xs text-gray-500 flex flex-col items-end space-y-1 flex-shrink-0">
+                    <span className={`px-2 py-1 rounded-full ${
+                      transcription.isFinal 
+                        ? 'bg-gray-100 text-gray-700' 
+                        : 'bg-yellow-200 text-yellow-800'
+                    }`}>
+                      {Math.round(transcription.confidence * 100)}%
                     </span>
-                  )}
+                    {transcription.speakerId && (
+                      <span className="text-blue-600 font-medium">
+                        {speakerMappings.find((mapping: SpeakerMapping) => mapping.speakerId === transcription.speakerId)?.playerName || 
+                         `Speaker ${transcription.speakerId}`}
+                      </span>
+                    )}
+                    <span className="text-xs text-gray-400">
+                      {new Date(transcription.timestamp).toLocaleTimeString()}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-          {transcriptions.length === 0 && (
-            <div className="text-sm text-gray-500 italic">
-              No transcriptions yet. Start recording to see transcribed speech here.
-            </div>
-          )}
+            ))}
+            {transcriptions.length === 0 && (
+              <div className="text-sm text-gray-500 italic text-center py-8">
+                No transcriptions yet. Start recording to see transcribed speech here.
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Speaker Mapping Modal */}
       {showSpeakerMapping && (
         <SpeakerMappingModal
-          detectedSpeakers={detectedSpeakers}
+          detectedSpeakers={detectedSpeakers.filter(speaker => unmappedSpeakers.has(speaker.id))}
           existingMappings={speakerMappings}
           onMapSpeaker={mapSpeaker}
-          onClose={() => setShowSpeakerMapping(false)}
+          onClose={() => {
+            setShowSpeakerMapping(false);
+            // Clear any remaining unmapped speakers from the set if user cancels
+            setUnmappedSpeakers(new Set());
+          }}
         />
       )}
     </div>
@@ -363,6 +398,13 @@ const SpeakerMappingModal: React.FC<SpeakerMappingModalProps> = ({
     setMappings(initialMappings);
   }, [existingMappings]);
 
+  // Auto-close when no speakers need mapping
+  useEffect(() => {
+    if (detectedSpeakers.length === 0) {
+      onClose();
+    }
+  }, [detectedSpeakers.length, onClose]);
+
   const handleSave = () => {
     Object.entries(mappings).forEach(([speakerId, playerName]) => {
       if (playerName.trim()) {
@@ -378,6 +420,11 @@ const SpeakerMappingModal: React.FC<SpeakerMappingModalProps> = ({
       [speakerId]: playerName,
     }));
   };
+
+  // Don't render if no speakers need mapping
+  if (detectedSpeakers.length === 0) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

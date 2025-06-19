@@ -155,6 +155,15 @@ export class AudioService {
           this.isConnected = true;
           this.reconnectAttempts = 0;
           this.updateStatus('Connected to transcription service');
+          
+          // Send start transcription message immediately after connection
+          if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
+            this.websocket.send(JSON.stringify({
+              type: 'start_transcription',
+              data: {}
+            }));
+          }
+          
           resolve();
         };
 
@@ -217,16 +226,42 @@ export class AudioService {
       return;
     }
 
+    console.log('🛑 Stopping recording...');
     this.isRecording = false;
     
-    if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
-      this.mediaRecorder.stop();
+    // Remove MediaRecorder event handlers to prevent any delayed events
+    if (this.mediaRecorder) {
+      this.mediaRecorder.ondataavailable = null;
+      this.mediaRecorder.onerror = null;
+      this.mediaRecorder.onstart = null;
+      this.mediaRecorder.onstop = null;
+      
+      if (this.mediaRecorder.state === 'recording') {
+        this.mediaRecorder.stop();
+        console.log('🎙️ MediaRecorder stopped');
+      }
     }
 
-    // Send final audio chunk if any
-    if (this.audioChunks.length > 0) {
-      this.sendFinalAudioChunk();
+    // Send stop transcription message to backend IMMEDIATELY
+    if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
+      this.websocket.send(JSON.stringify({
+        type: 'stop_transcription',
+        data: {}
+      }));
+      console.log('📤 Sent stop_transcription message to backend');
     }
+
+    // Stop all media stream tracks (this stops the microphone)
+    if (this.mediaStream) {
+      this.mediaStream.getTracks().forEach(track => {
+        track.stop();
+        console.log('🎤 Stopped audio track:', track.label);
+      });
+    }
+
+    // Clear any pending audio chunks to prevent them from being sent
+    this.audioChunks = [];
+    console.log('🗑️ Cleared audio chunks array');
 
     this.updateStatus('Recording stopped');
   }
@@ -257,6 +292,12 @@ export class AudioService {
 
   // Handle audio data from MediaRecorder
   private handleAudioData(audioBlob: Blob): void {
+    // Check if we're still recording - if not, ignore this chunk
+    if (!this.isRecording) {
+      console.log('🚫 Ignoring audio chunk - recording stopped');
+      return;
+    }
+
     if (!this.isConnected || !this.websocket) {
       // Store chunks for later if not connected
       this.audioChunks.push(audioBlob);
@@ -315,19 +356,28 @@ export class AudioService {
       const message = JSON.parse(data);
       
       switch (message.type) {
+        case 'connected':
+          console.log('✅ WebSocket connection confirmed by backend:', message.data);
+          break;
         case 'transcription':
           this.handleTranscriptionResult(message.data);
           break;
         case 'speaker_detected':
           this.handleSpeakerDetection(message.data);
           break;
+        case 'status':
+          if (message.data?.status) {
+            this.updateStatus(`Backend: ${message.data.status}`);
+          }
+          break;
         case 'error':
-          this.handleError(new Error(message.error));
+          this.handleError(new Error(message.data?.error || 'Unknown backend error'));
           break;
         default:
-          console.warn('Unknown message type:', message.type);
+          console.warn('Unknown message type:', message.type, message);
       }
     } catch (error) {
+      console.error('Failed to parse transcription message:', error, 'Raw data:', data);
       this.handleError(new Error(`Failed to parse transcription message: ${error}`));
     }
   }
@@ -337,9 +387,9 @@ export class AudioService {
     const result: TranscriptionResult = {
       text: data.text || '',
       confidence: data.confidence || 0,
-      speakerId: data.speaker_id,
+      speakerId: data.speakerId || data.speaker_id,
       timestamp: data.timestamp || Date.now(),
-      isFinal: data.is_final || false,
+      isFinal: data.isFinal || data.is_final || false,
     };
 
     this.onTranscriptionCallback?.(result);
@@ -347,7 +397,7 @@ export class AudioService {
 
   // Handle speaker detection
   private handleSpeakerDetection(data: any): void {
-    const speakerId = data.speaker_id;
+    const speakerId = data.speakerId || data.speaker_id;
     if (speakerId) {
       this.onSpeakerDetectedCallback?.(speakerId);
     }
