@@ -1,0 +1,38 @@
+<context>
+# Overview  
+Dundra is a web tool that assists the DM and their players as they run through a Dungeons and Dragons campaign, dynamically adding color to the campaign world, generating personalized images of the adventurers as they go through their quests, and helping keep track of things that could otherwise be forgotten or confused
+
+# Core Features  
+- Live audio transcription and analysis to keep track of player actions and status
+- Track player characters, skills, spells, inventory
+- Automatic image generation at key points in the story, using faces of the players (uploaded by the DM) and their character sheets to create personalized images - with them as the heros performing the actions they're doing in the campaign
+- Generating atmospheric and detailed descriptions of locations and NPCs to help the DM
+
+# User Experience  
+Dundra is a webapp, with two sections:
+- setup: where the DM adds players and their character sheets, including pictures of the faces, and a description of the campaign
+- live play: where Dundra is in listening mode, capturing live audio of the game, and dynamically creating "cards", where each card is either an image to illustrate what is happening, or a text description for the DM to read. The cards are generated automatically, or the DM can ask Dundra for a card by speaking ("Dundra, create an image of <description>", or "Dundra, decribe this place")
+
+All of this is organized into "campaigns" that are saved by Dundra, and can be paused or restarted
+</context>
+<PRD>
+# Technical Architecture  
+Webapp, with connections to live audio LLM-based service (to be chosen)
+
+# Development Roadmap  
+1. Build MVP that does the basics
+2. Expand with more functionality
+
+# Logical Dependency Chain
+Core parts:
+- Web UI and server/database backend with CRUD for campaigns & characters
+- Streaming audio capture and transcription functionality
+- Orchestration of live gameplay - loop that analyzes transcription and comes up with card ideas
+- Card generators (start with simple ones, gradually create more complex ones)
+
+# Risks and Mitigations  
+- Live audio transcription might be laggy
+- Speaker attribution could prove infeasible (and without attribution, easy for orchestration LLM to get confused on what is going on)
+
+# Appendix  
+</PRD>

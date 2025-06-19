@@ -1,0 +1,266 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Setup Project Repository and Base Architecture",
+        "description": "Initialize the project repository with a modern web application framework and establish the base architecture for the Dundra application.",
+        "details": "Create a new repository and set up a web application using React for the frontend and Node.js/Express for the backend. Configure the project structure with separate directories for frontend and backend code. Set up ESLint, Prettier, and TypeScript for code quality. Initialize a database connection (MongoDB recommended for flexible schema). Create basic CI/CD pipeline for automated testing and deployment. Include README with setup instructions and project overview.",
+        "testStrategy": "Verify that the development environment can be set up with a single command. Ensure that the CI/CD pipeline successfully builds the application. Test that the basic application structure works with a simple 'Hello World' page.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Initialize project repository",
+            "description": "Create a new Git repository and set up the basic project structure",
+            "dependencies": [],
+            "details": "Create a new Git repository, initialize with a README.md, .gitignore, and license file. Set up folders for frontend, backend, and shared code.\n<info added on 2025-06-19T17:08:00.000Z>\n✅ Successfully completed repository initialization:\n\n**Completed Tasks:**\n- ✅ Git repository already initialized\n- ✅ Created proper project structure with directories:\n  - frontend/ - React application directory\n  - backend/ - Node.js/Express API directory  \n  - shared/ - Common utilities and types\n  - docs/ - Project documentation\n- ✅ Created comprehensive README.md with project overview, features, tech stack, and setup instructions\n- ✅ Added MIT LICENSE file\n- ✅ Created root package.json with monorepo structure and npm scripts for development\n- ✅ Added placeholder README files in each directory explaining their purpose\n- ✅ Existing .gitignore file properly configured for Node.js projects\n\n**Project Structure Established:**\n```\ndundra/\n├── frontend/          # React-based web application\n├── backend/           # Node.js/Express API server  \n├── shared/            # Shared utilities and types\n├── docs/              # Project documentation\n├── package.json       # Root package.json with monorepo scripts\n├── README.md          # Comprehensive project documentation\n├── LICENSE            # MIT license\n└── .gitignore         # Git ignore rules\n```\n\nThe foundation is now ready for the next subtasks: frontend and backend architecture setup.\n</info added on 2025-06-19T17:08:00.000Z>\n<info added on 2025-06-19T17:08:59.880Z>\n📁 **Directory Rename Update:**\n- Renamed project directory from `/Users/rkarachinsky/Development/dnd` to `/Users/rkarachinsky/Development/dundra`\n- This ensures consistency between the folder name and project name \"Dundra\"\n- All file paths and project structure remain the same, just with the corrected parent directory name\n- Task Master configuration updated to use the new path\n</info added on 2025-06-19T17:08:59.880Z>",
+            "status": "done"
+          },
+          {
+            "id": 2,
+            "title": "Set up frontend architecture",
+            "description": "Initialize the frontend project with React and necessary dependencies",
+            "dependencies": [
+              1
+            ],
+            "details": "Use Create React App or Next.js to set up the frontend project. Install required dependencies, set up routing, and create basic component structure.",
+            "status": "in-progress"
+          },
+          {
+            "id": 3,
+            "title": "Set up backend architecture",
+            "description": "Initialize the backend project with Node.js and Express",
+            "dependencies": [
+              1
+            ],
+            "details": "Set up a Node.js project with Express.js. Configure middleware, create basic API routes, and set up database connection (if applicable).",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Configure development tools",
+            "description": "Set up linting, formatting, and testing tools for both frontend and backend",
+            "dependencies": [
+              2,
+              3
+            ],
+            "details": "Install and configure ESLint, Prettier, Jest, and any other necessary development tools. Create scripts for linting, formatting, and testing.",
+            "status": "pending"
+          },
+          {
+            "id": 5,
+            "title": "Set up CI/CD pipeline",
+            "description": "Create a basic CI/CD pipeline for automated testing and deployment",
+            "dependencies": [
+              4
+            ],
+            "details": "Set up GitHub Actions or another CI/CD tool. Create workflows for running tests, linting, and deploying to a staging environment on push to main branch.",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Design Database Schema for Campaigns and Characters",
+        "description": "Design and implement the database schema to store campaign information, player characters, and their attributes.",
+        "details": "Create MongoDB schemas for: 1) Campaigns (name, description, date created, last played, DM info, etc.), 2) Characters (name, class, race, abilities, skills, spells, inventory, etc.), 3) Players (name, email, profile picture URL), 4) Sessions (date, summary, cards generated). Implement relationships between these entities. Create database migration scripts. Implement data validation using Mongoose schemas. Add indexes for frequently queried fields.",
+        "testStrategy": "Write unit tests for schema validation. Test CRUD operations for each entity. Verify that relationships between entities are maintained correctly. Test edge cases like very long character names or large inventory lists.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Implement User Authentication System",
+        "description": "Create a user authentication system for DMs to register, login, and manage their campaigns.",
+        "details": "Implement user registration and login endpoints using JWT authentication. Create password hashing and verification using bcrypt. Design and implement frontend login/registration forms. Add password reset functionality. Implement session management. Create protected routes that require authentication. Add user profile management page. Implement role-based access control (DM vs. player roles).",
+        "testStrategy": "Test user registration with valid and invalid inputs. Verify login functionality and JWT token generation. Test password reset flow. Ensure protected routes reject unauthenticated requests. Verify that user sessions expire correctly.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Create Campaign Setup UI",
+        "description": "Develop the UI for DMs to create and configure new campaigns, including adding players and their character sheets.",
+        "details": "Design and implement a multi-step form for campaign creation. Create UI components for adding campaign details (name, description, setting). Implement player invitation system (email or link sharing). Build character sheet upload functionality with support for PDF parsing or manual entry. Create face image upload component with preview and cropping functionality. Implement validation for all form inputs. Add ability to edit existing campaigns.",
+        "testStrategy": "Test campaign creation flow with various inputs. Verify that character sheets can be uploaded in different formats. Test image upload, preview, and cropping. Ensure validation prevents submission of incomplete data. Test editing of existing campaigns.",
+        "priority": "medium",
+        "dependencies": [
+          2,
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "Implement Character Sheet Parser",
+        "description": "Create a parser to extract character information from uploaded character sheets.",
+        "details": "Research and integrate a PDF parsing library (e.g., pdf.js). Create parsers for common D&D character sheet formats (D&D Beyond, Roll20, etc.). Extract character attributes, skills, spells, and inventory items. Implement a fallback manual entry form for sheets that can't be parsed automatically. Store parsed data in the database according to the character schema. Add functionality to update character information as it changes during gameplay.",
+        "testStrategy": "Test parsing with various character sheet formats. Verify that all relevant information is correctly extracted. Test edge cases like custom character sheets. Ensure the manual entry form works correctly. Verify that updates to character information are saved correctly.",
+        "priority": "medium",
+        "dependencies": [
+          2,
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Implement Audio Capture and Transcription Service",
+        "description": "Develop the functionality to capture live audio during gameplay and transcribe it to text.",
+        "details": "Research and integrate a real-time audio transcription service (e.g., Google Speech-to-Text, OpenAI Whisper). Implement browser-based audio capture using WebRTC. Create a streaming pipeline to send audio chunks to the transcription service. Implement error handling for audio capture issues. Add functionality to start/stop/pause transcription. Store transcribed text in the database with timestamps. Optimize for low latency and high accuracy.",
+        "testStrategy": "Test audio capture in different browsers and devices. Verify transcription accuracy with various accents and speech patterns. Measure and optimize latency. Test error recovery when audio capture fails. Verify that transcription can be paused and resumed.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Develop Speaker Attribution System",
+        "description": "Create a system to attribute transcribed speech to specific players or the DM.",
+        "details": "Research speaker diarization techniques and services. Implement a training phase where players speak sample sentences to create voice profiles. Create an algorithm to match transcribed speech with the most likely speaker based on voice profiles and context. Implement fallback mechanisms when attribution confidence is low. Add UI for manual correction of misattributed speech. Store speaker information with transcribed text.",
+        "testStrategy": "Test attribution accuracy with various speakers. Measure false positive and false negative rates. Test with background noise and cross-talk. Verify that the manual correction UI works effectively. Test the system with new speakers not in the training data.",
+        "priority": "medium",
+        "dependencies": [
+          6
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Implement Live Play UI",
+        "description": "Develop the UI for the live play mode where Dundra listens to the game and displays cards.",
+        "details": "Design and implement the live play interface with areas for transcription display, cards, and controls. Create UI components for different card types (image, text description). Implement a card display system with animation for new cards. Add controls for starting/stopping/pausing the game session. Create a command recognition system for 'Dundra, create an image...' type requests. Implement real-time updates using WebSockets. Add a sidebar for quick access to character information.",
+        "testStrategy": "Test the UI in different screen sizes and browsers. Verify that cards are displayed correctly and animations work. Test command recognition with various phrasings. Ensure real-time updates work without significant delay. Test the responsiveness of the UI during active gameplay.",
+        "priority": "high",
+        "dependencies": [
+          4,
+          6
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "Develop Transcription Analysis Engine",
+        "description": "Create an LLM-based system to analyze transcribed gameplay and identify key moments for card generation.",
+        "details": "Integrate with an LLM service (e.g., OpenAI GPT-4, Anthropic Claude). Develop prompts to analyze gameplay transcripts for key moments (combat, exploration, social interaction). Implement a system to track the current state of the game (location, active characters, ongoing quests). Create algorithms to identify when a new card should be generated. Implement context management to provide the LLM with relevant history. Add functionality to extract character actions and updates from the transcript.",
+        "testStrategy": "Test analysis with sample gameplay transcripts. Verify that key moments are correctly identified. Test with various game styles and pacing. Measure and optimize response time. Verify that the system maintains accurate game state over long sessions.",
+        "priority": "high",
+        "dependencies": [
+          6,
+          7
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Implement Text Description Card Generator",
+        "description": "Develop the functionality to generate detailed text descriptions of locations and NPCs.",
+        "details": "Create an LLM-based system to generate rich, atmospheric descriptions based on context. Implement prompts that incorporate campaign setting, current location, and relevant history. Add functionality to generate NPC descriptions with personality traits, appearance, and motivations. Create a template system for consistent formatting of descriptions. Implement caching to avoid regenerating similar descriptions. Add controls for the DM to regenerate or edit descriptions.",
+        "testStrategy": "Test description generation with various inputs. Verify that descriptions are appropriate for the campaign setting. Test edge cases like minimal context. Measure and optimize generation time. Verify that caching works correctly for similar requests.",
+        "priority": "medium",
+        "dependencies": [
+          8,
+          9
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 11,
+        "title": "Implement Image Generation System",
+        "description": "Develop the functionality to generate personalized images of players as their characters in key moments.",
+        "details": "Research and integrate an image generation API (e.g., DALL-E, Midjourney, Stable Diffusion). Develop a system to incorporate player face images into generated character images. Create prompts that accurately describe the scene based on gameplay context. Implement a queue system for image generation requests. Add caching to avoid regenerating similar images. Create fallback mechanisms for when image generation fails. Implement controls for the DM to regenerate or request specific images.",
+        "testStrategy": "Test image generation with various player faces and character descriptions. Verify that generated images appropriately incorporate player likenesses. Test with different scene types (combat, exploration, etc.). Measure and optimize generation time. Verify that the queue system handles multiple requests correctly.",
+        "priority": "high",
+        "dependencies": [
+          5,
+          9
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 12,
+        "title": "Implement Character Tracking System",
+        "description": "Develop functionality to track and update character stats, inventory, and status during gameplay.",
+        "details": "Create a system to extract character updates from transcribed gameplay (e.g., damage taken, items acquired). Implement automatic updates to character sheets based on extracted information. Add UI for the DM to manually update character information. Create notifications for significant character changes. Implement history tracking for character changes. Add functionality to roll back incorrect changes. Create a summary view of all character statuses for the DM.",
+        "testStrategy": "Test automatic updates with various gameplay scenarios. Verify that character information is correctly updated in the database. Test manual update functionality. Ensure that history tracking works correctly. Test rollback functionality for incorrect changes.",
+        "priority": "medium",
+        "dependencies": [
+          5,
+          9
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 13,
+        "title": "Implement Campaign Management System",
+        "description": "Develop functionality to manage, save, load, and review campaign sessions.",
+        "details": "Create a system to save the current state of a campaign session. Implement functionality to resume a paused campaign. Add a session history view with summaries and generated cards. Create an export function for session summaries. Implement automatic saving at regular intervals. Add functionality to create branching campaign timelines. Create a dashboard for the DM to manage all their campaigns.",
+        "testStrategy": "Test saving and loading campaign states. Verify that all relevant information is preserved when resuming a campaign. Test the session history view with various campaign lengths. Verify that automatic saving works correctly. Test the campaign management dashboard with multiple campaigns.",
+        "priority": "medium",
+        "dependencies": [
+          4,
+          8
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 14,
+        "title": "Implement Voice Command System",
+        "description": "Develop functionality to recognize and process voice commands from the DM.",
+        "details": "Create a system to recognize commands prefixed with 'Dundra' in the transcribed audio. Implement handlers for different command types (create image, describe location, etc.). Add natural language processing to handle variations in command phrasing. Create feedback mechanisms to confirm command recognition. Implement error handling for ambiguous or unrecognized commands. Add a UI to show available commands and examples.",
+        "testStrategy": "Test command recognition with various phrasings and accents. Verify that different command types are correctly processed. Test with background noise and cross-talk. Measure and optimize command response time. Verify that error handling works correctly for ambiguous commands.",
+        "priority": "low",
+        "dependencies": [
+          6,
+          8
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 15,
+        "title": "Optimize Performance and Implement Error Handling",
+        "description": "Optimize the application for performance and implement comprehensive error handling.",
+        "details": "Profile the application to identify performance bottlenecks. Implement caching strategies for frequently accessed data. Optimize database queries with proper indexing. Implement retry mechanisms for external API calls. Create a comprehensive error logging system. Add user-friendly error messages and recovery options. Implement graceful degradation when services are unavailable. Optimize image and asset loading. Add performance monitoring and alerting.",
+        "testStrategy": "Measure application performance under various load conditions. Test error recovery with simulated API failures. Verify that error messages are user-friendly and helpful. Test graceful degradation scenarios. Verify that monitoring correctly identifies performance issues.",
+        "priority": "medium",
+        "dependencies": [
+          6,
+          8,
+          9,
+          11
+        ],
+        "status": "pending",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-06-19T17:00:49.268Z",
+      "updated": "2025-06-19T17:10:29.763Z",
+      "description": "Tasks for master context"
+    }
+  }
+}
