@@ -73,4 +73,4 @@ export const {
   setError,
 } = campaignSlice.actions;
 
-export default campaignSlice.reducer; 
+export default campaignSlice.reducer;

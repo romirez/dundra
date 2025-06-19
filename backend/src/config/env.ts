@@ -1,5 +1,5 @@
-import dotenv from 'dotenv';
 import { EnvConfig } from '@/types';
+import dotenv from 'dotenv';
 
 // Load environment variables
 dotenv.config();
@@ -29,19 +29,23 @@ export const env: EnvConfig = {
   CORS_ORIGIN: getEnvVar('CORS_ORIGIN', 'http://localhost:5173'),
   UPLOAD_DIR: getEnvVar('UPLOAD_DIR', 'uploads'),
   MAX_FILE_SIZE: getEnvNumber('MAX_FILE_SIZE', 10 * 1024 * 1024), // 10MB
+  // Google Cloud configuration (optional)
+  GOOGLE_CLOUD_PROJECT_ID: process.env.GOOGLE_CLOUD_PROJECT_ID,
+  GOOGLE_CLOUD_API_KEY: process.env.GOOGLE_CLOUD_API_KEY,
+  GOOGLE_CLOUD_KEY_FILE: process.env.GOOGLE_CLOUD_KEY_FILE,
 };
 
 // Validate environment in production
 if (env.NODE_ENV === 'production') {
   const requiredEnvVars = ['JWT_SECRET', 'MONGODB_URI'];
-  
+
   for (const envVar of requiredEnvVars) {
     if (!process.env[envVar]) {
       throw new Error(`Environment variable ${envVar} is required in production`);
     }
   }
-  
+
   if (env.JWT_SECRET === 'your-super-secret-jwt-key-change-this-in-production') {
     throw new Error('JWT_SECRET must be changed from default value in production');
   }
-} 
+}

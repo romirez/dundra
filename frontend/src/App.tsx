@@ -17,13 +17,13 @@ function App() {
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
         <Router>
-          <div className="min-h-screen bg-dark-900">
+          <div className='min-h-screen bg-dark-900'>
             <Layout>
               <Routes>
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/campaign/:id/setup" element={<CampaignSetup />} />
-                <Route path="/campaign/:id/play" element={<LivePlay />} />
+                <Route path='/' element={<Navigate to='/dashboard' replace />} />
+                <Route path='/dashboard' element={<Dashboard />} />
+                <Route path='/campaign/:id/setup' element={<CampaignSetup />} />
+                <Route path='/campaign/:id/play' element={<LivePlay />} />
               </Routes>
             </Layout>
           </div>

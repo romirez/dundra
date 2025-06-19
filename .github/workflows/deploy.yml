@@ -1,0 +1,246 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ['CI Pipeline']
+    types:
+      - completed
+    branches:
+      - main
+      - develop
+
+env:
+  NODE_VERSION: '20'
+  CACHE_VERSION: 'v1'
+
+jobs:
+  # Only run if CI was successful
+  check-ci-success:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: CI Success
+        run: echo "CI pipeline completed successfully, proceeding with deployment"
+
+  # Deploy to staging (from develop branch)
+  deploy-staging:
+    needs: check-ci-success
+    if: github.event.workflow_run.head_branch == 'develop'
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging.dundra.app
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm ci --prefix backend
+          npm ci --prefix frontend
+
+      - name: Restore backend build cache
+        uses: actions/cache@v3
+        with:
+          path: backend/dist
+          key: backend-build-${{ env.CACHE_VERSION }}-${{ github.event.workflow_run.head_sha }}
+          fail-on-cache-miss: true
+
+      - name: Restore frontend build cache
+        uses: actions/cache@v3
+        with:
+          path: frontend/dist
+          key: frontend-build-${{ env.CACHE_VERSION }}-${{ github.event.workflow_run.head_sha }}
+          fail-on-cache-miss: true
+
+      - name: Build if cache miss
+        run: |
+          if [ ! -d "backend/dist" ]; then
+            echo "Backend build not found in cache, building..."
+            npm run build --prefix backend
+          fi
+          if [ ! -d "frontend/dist" ]; then
+            echo "Frontend build not found in cache, building..."
+            npm run build --prefix frontend
+          fi
+
+      # Example deployment steps (replace with your actual deployment method)
+      - name: Deploy Backend to Staging
+        run: |
+          echo "Deploying backend to staging environment..."
+          # Example: Deploy to Railway, Render, or your preferred platform
+          # railway deploy --environment staging
+          # or use Docker deployment
+          # docker build -t dundra-backend:staging ./backend
+          # docker push your-registry/dundra-backend:staging
+
+      - name: Deploy Frontend to Staging
+        run: |
+          echo "Deploying frontend to staging environment..."
+          # Example: Deploy to Vercel, Netlify, or your preferred platform
+          # vercel deploy --env staging
+          # or use static hosting
+          # aws s3 sync frontend/dist s3://dundra-staging-bucket
+
+      - name: Run Staging Health Check
+        run: |
+          echo "Running health checks on staging environment..."
+          # Add health check commands here
+          # curl -f https://staging-api.dundra.app/health || exit 1
+          # curl -f https://staging.dundra.app || exit 1
+
+      - name: Notify Staging Deployment
+        uses: 8398a7/action-slack@v3
+        if: always()
+        with:
+          status: ${{ job.status }}
+          text: 'Staging deployment ${{ job.status }} for commit ${{ github.event.workflow_run.head_sha }}'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # Deploy to production (from main branch)
+  deploy-production:
+    needs: check-ci-success
+    if: github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://dundra.app
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm ci --prefix backend
+          npm ci --prefix frontend
+
+      - name: Restore backend build cache
+        uses: actions/cache@v3
+        with:
+          path: backend/dist
+          key: backend-build-${{ env.CACHE_VERSION }}-${{ github.event.workflow_run.head_sha }}
+          fail-on-cache-miss: true
+
+      - name: Restore frontend build cache
+        uses: actions/cache@v3
+        with:
+          path: frontend/dist
+          key: frontend-build-${{ env.CACHE_VERSION }}-${{ github.event.workflow_run.head_sha }}
+          fail-on-cache-miss: true
+
+      - name: Build if cache miss
+        run: |
+          if [ ! -d "backend/dist" ]; then
+            echo "Backend build not found in cache, building..."
+            npm run build --prefix backend
+          fi
+          if [ ! -d "frontend/dist" ]; then
+            echo "Frontend build not found in cache, building..."
+            npm run build --prefix frontend
+          fi
+
+      # Backup current production version
+      - name: Create Production Backup
+        run: |
+          echo "Creating backup of current production version..."
+          # Add backup commands here
+          # This could involve tagging the current deployment or creating a snapshot
+
+      # Example deployment steps (replace with your actual deployment method)
+      - name: Deploy Backend to Production
+        run: |
+          echo "Deploying backend to production environment..."
+          # Example: Deploy to Railway, Render, or your preferred platform
+          # railway deploy --environment production
+          # or use Docker deployment with zero-downtime
+          # docker build -t dundra-backend:${{ github.event.workflow_run.head_sha }} ./backend
+          # docker push your-registry/dundra-backend:${{ github.event.workflow_run.head_sha }}
+          # kubectl set image deployment/dundra-backend dundra-backend=your-registry/dundra-backend:${{ github.event.workflow_run.head_sha }}
+
+      - name: Deploy Frontend to Production
+        run: |
+          echo "Deploying frontend to production environment..."
+          # Example: Deploy to Vercel, Netlify, or your preferred platform
+          # vercel deploy --prod
+          # or use CDN deployment
+          # aws s3 sync frontend/dist s3://dundra-production-bucket
+          # aws cloudfront create-invalidation --distribution-id YOUR_DISTRIBUTION_ID --paths "/*"
+
+      - name: Run Production Health Check
+        run: |
+          echo "Running health checks on production environment..."
+          # Add comprehensive health check commands here
+          # curl -f https://api.dundra.app/health || exit 1
+          # curl -f https://dundra.app || exit 1
+          # Add database connectivity check
+          # Add external service checks
+
+      - name: Run Smoke Tests
+        run: |
+          echo "Running smoke tests on production environment..."
+          # Add smoke test commands here
+          # npm run test:smoke --prefix backend
+          # npm run test:e2e --prefix frontend
+
+      - name: Notify Production Deployment Success
+        uses: 8398a7/action-slack@v3
+        if: success()
+        with:
+          status: success
+          text: '🚀 Production deployment successful for commit ${{ github.event.workflow_run.head_sha }}'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Notify Production Deployment Failure
+        uses: 8398a7/action-slack@v3
+        if: failure()
+        with:
+          status: failure
+          text: '❌ Production deployment failed for commit ${{ github.event.workflow_run.head_sha }} - immediate attention required!'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # Rollback job (manual trigger)
+  rollback-production:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    environment:
+      name: production
+    steps:
+      - name: Rollback Production
+        run: |
+          echo "Rolling back production to previous version..."
+          # Add rollback commands here
+          # This could involve deploying a previous version or restoring from backup
+
+      - name: Verify Rollback
+        run: |
+          echo "Verifying rollback was successful..."
+          # Add verification commands here
+
+      - name: Notify Rollback
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: '⚠️ Production rollback ${{ job.status }}'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

@@ -142,17 +142,17 @@ export interface SocketEvents {
   // Connection events
   'user:join': (data: { campaignId: string; user: SocketUser }) => void;
   'user:leave': (data: { campaignId: string; userId: string }) => void;
-  
+
   // Transcription events
   'transcription:start': () => void;
   'transcription:stop': () => void;
   'transcription:new': (entry: ITranscriptionEntry) => void;
-  
+
   // Card generation events
   'card:generated': (card: IGeneratedCard) => void;
   'card:approved': (cardId: string) => void;
   'card:rejected': (cardId: string) => void;
-  
+
   // Session events
   'session:update': (session: Partial<ISession>) => void;
   'session:participant:join': (participant: string) => void;
@@ -169,4 +169,8 @@ export interface EnvConfig {
   CORS_ORIGIN: string;
   UPLOAD_DIR: string;
   MAX_FILE_SIZE: number;
-} 
+  // Google Cloud configuration
+  GOOGLE_CLOUD_PROJECT_ID?: string;
+  GOOGLE_CLOUD_API_KEY?: string;
+  GOOGLE_CLOUD_KEY_FILE?: string; // Optional fallback for service account
+}

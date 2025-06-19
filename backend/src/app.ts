@@ -1,8 +1,8 @@
-import express from 'express';
+import { env } from '@/config/env';
 import cors from 'cors';
+import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import { env } from '@/config/env';
 
 // Import routes (will be created next)
 // import authRoutes from '@/routes/auth';
@@ -13,17 +13,21 @@ import { env } from '@/config/env';
 const app = express();
 
 // Security middleware
-app.use(helmet({
-  crossOriginEmbedderPolicy: false, // Allow embedding for development
-}));
+app.use(
+  helmet({
+    crossOriginEmbedderPolicy: false, // Allow embedding for development
+  })
+);
 
 // CORS configuration
-app.use(cors({
-  origin: env.CORS_ORIGIN,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+app.use(
+  cors({
+    origin: env.CORS_ORIGIN,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
 
 // Logging middleware
 if (env.NODE_ENV !== 'test') {
@@ -76,14 +80,12 @@ app.get('/', (req, res) => {
 });
 
 // Global error handler
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: Error, req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('Global error handler:', err);
-  
+
   res.status(500).json({
     success: false,
-    message: env.NODE_ENV === 'production' 
-      ? 'Internal server error' 
-      : err.message,
+    message: env.NODE_ENV === 'production' ? 'Internal server error' : err.message,
     ...(env.NODE_ENV !== 'production' && { stack: err.stack }),
   });
 });
@@ -96,4 +98,4 @@ app.use((req, res) => {
   });
 });
 
-export default app; 
+export default app;

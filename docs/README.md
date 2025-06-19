@@ -8,4 +8,4 @@ Project documentation and guides.
 - Development guides
 - Deployment instructions
 - Architecture decisions
-- User guides 
+- User guides

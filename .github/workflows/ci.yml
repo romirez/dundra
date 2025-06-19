@@ -1,0 +1,345 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  NODE_VERSION: '20'
+  CACHE_VERSION: 'v1'
+
+jobs:
+  # Job to detect changes and set up matrix
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.changes.outputs.backend }}
+      frontend: ${{ steps.changes.outputs.frontend }}
+      shared: ${{ steps.changes.outputs.shared }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for changes
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+              - 'package.json'
+              - 'package-lock.json'
+            frontend:
+              - 'frontend/**'
+              - 'package.json'
+              - 'package-lock.json'
+            shared:
+              - 'shared/**'
+              - '.github/workflows/**'
+              - 'jest.config.js'
+              - 'eslint.config.js'
+              - '.prettierrc.js'
+
+  # Backend CI Jobs
+  backend-lint:
+    needs: changes
+    if: ${{ needs.changes.outputs.backend == 'true' || needs.changes.outputs.shared == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            backend/package-lock.json
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: ./backend
+
+      - name: Lint backend
+        run: npm run lint
+        working-directory: ./backend
+
+  backend-test:
+    needs: changes
+    if: ${{ needs.changes.outputs.backend == 'true' || needs.changes.outputs.shared == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            backend/package-lock.json
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: ./backend
+
+      - name: Run backend tests
+        run: npm test
+        working-directory: ./backend
+        env:
+          NODE_ENV: test
+
+      - name: Upload backend coverage
+        uses: codecov/codecov-action@v3
+        with:
+          flags: backend
+          directory: ./backend/coverage
+          fail_ci_if_error: false
+
+  backend-build:
+    needs: [backend-lint, backend-test]
+    if: ${{ needs.changes.outputs.backend == 'true' || needs.changes.outputs.shared == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            backend/package-lock.json
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: ./backend
+
+      - name: Type check backend
+        run: npm run type-check
+        working-directory: ./backend
+
+      - name: Build backend
+        run: npm run build
+        working-directory: ./backend
+
+      - name: Cache backend build
+        uses: actions/cache@v3
+        with:
+          path: backend/dist
+          key: backend-build-${{ env.CACHE_VERSION }}-${{ github.sha }}
+          restore-keys: |
+            backend-build-${{ env.CACHE_VERSION }}-
+
+  # Frontend CI Jobs
+  frontend-lint:
+    needs: changes
+    if: ${{ needs.changes.outputs.frontend == 'true' || needs.changes.outputs.shared == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            frontend/package-lock.json
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: ./frontend
+
+      - name: Lint frontend
+        run: npm run lint
+        working-directory: ./frontend
+
+  frontend-test:
+    needs: changes
+    if: ${{ needs.changes.outputs.frontend == 'true' || needs.changes.outputs.shared == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            frontend/package-lock.json
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: ./frontend
+
+      - name: Run frontend tests
+        run: npm test
+        working-directory: ./frontend
+        env:
+          CI: true
+
+      - name: Upload frontend coverage
+        uses: codecov/codecov-action@v3
+        with:
+          flags: frontend
+          directory: ./frontend/coverage
+          fail_ci_if_error: false
+
+  frontend-build:
+    needs: [frontend-lint, frontend-test]
+    if: ${{ needs.changes.outputs.frontend == 'true' || needs.changes.outputs.shared == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            frontend/package-lock.json
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: ./frontend
+
+      - name: Type check frontend
+        run: npm run type-check
+        working-directory: ./frontend
+
+      - name: Build frontend
+        run: npm run build
+        working-directory: ./frontend
+        env:
+          CI: true
+
+      - name: Cache frontend build
+        uses: actions/cache@v3
+        with:
+          path: frontend/dist
+          key: frontend-build-${{ env.CACHE_VERSION }}-${{ github.sha }}
+          restore-keys: |
+            frontend-build-${{ env.CACHE_VERSION }}-
+
+  # Security and Quality Checks
+  security-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Run security audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: ./backend
+
+      - name: Audit backend dependencies
+        run: npm audit --audit-level=moderate
+        working-directory: ./backend
+        continue-on-error: true
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: ./frontend
+
+      - name: Audit frontend dependencies
+        run: npm audit --audit-level=moderate
+        working-directory: ./frontend
+        continue-on-error: true
+
+  # Format Check
+  format-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Check code formatting
+        run: npm run format:check
+
+  # Summary job that depends on all others
+  ci-success:
+    needs:
+      [
+        backend-lint,
+        backend-test,
+        backend-build,
+        frontend-lint,
+        frontend-test,
+        frontend-build,
+        security-audit,
+        format-check,
+      ]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check all jobs status
+        run: |
+          if [[ "${{ needs.backend-lint.result }}" == "failure" || 
+                "${{ needs.backend-test.result }}" == "failure" || 
+                "${{ needs.backend-build.result }}" == "failure" ||
+                "${{ needs.frontend-lint.result }}" == "failure" || 
+                "${{ needs.frontend-test.result }}" == "failure" || 
+                "${{ needs.frontend-build.result }}" == "failure" ||
+                "${{ needs.security-audit.result }}" == "failure" || 
+                "${{ needs.format-check.result }}" == "failure" ]]; then
+            echo "One or more jobs failed"
+            exit 1
+          fi
+          echo "All jobs passed successfully"

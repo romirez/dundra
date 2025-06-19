@@ -82,4 +82,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Roadmap
 
-See the `.taskmaster/tasks/` directory for detailed development tasks and progress tracking. 
+See the `.taskmaster/tasks/` directory for detailed development tasks and progress tracking.

@@ -1,133 +1,133 @@
 {
-	"meta": {
-		"generatedAt": "2025-06-19T17:04:54.382Z",
-		"tasksAnalyzed": 15,
-		"totalTasks": 15,
-		"analysisCount": 15,
-		"thresholdScore": 5,
-		"projectName": "Taskmaster",
-		"usedResearch": true
-	},
-	"complexityAnalysis": [
-		{
-			"taskId": 1,
-			"taskTitle": "Setup Project Repository and Base Architecture",
-			"complexityScore": 7,
-			"recommendedSubtasks": 5,
-			"expansionPrompt": "Break down the setup of the project repository and base architecture into specific steps, including frontend and backend setup, configuration of development tools, and CI/CD pipeline creation.",
-			"reasoning": "This task involves setting up multiple technologies and configurations, requiring careful planning and execution."
-		},
-		{
-			"taskId": 2,
-			"taskTitle": "Design Database Schema for Campaigns and Characters",
-			"complexityScore": 6,
-			"recommendedSubtasks": 4,
-			"expansionPrompt": "Divide the database schema design into subtasks for each main entity (Campaigns, Characters, Players, Sessions) and include tasks for implementing relationships and validation.",
-			"reasoning": "While not overly complex, this task requires careful consideration of data relationships and schema design."
-		},
-		{
-			"taskId": 3,
-			"taskTitle": "Implement User Authentication System",
-			"complexityScore": 7,
-			"recommendedSubtasks": 6,
-			"expansionPrompt": "Break down the user authentication system implementation into subtasks covering backend authentication, frontend forms, password management, and session handling.",
-			"reasoning": "Authentication systems involve multiple components and security considerations, increasing complexity."
-		},
-		{
-			"taskId": 4,
-			"taskTitle": "Create Campaign Setup UI",
-			"complexityScore": 6,
-			"recommendedSubtasks": 5,
-			"expansionPrompt": "Divide the campaign setup UI creation into subtasks for each major component, including form design, player invitation, character sheet upload, and image handling.",
-			"reasoning": "This task involves creating multiple UI components and handling various user interactions."
-		},
-		{
-			"taskId": 5,
-			"taskTitle": "Implement Character Sheet Parser",
-			"complexityScore": 8,
-			"recommendedSubtasks": 5,
-			"expansionPrompt": "Break down the character sheet parser implementation into subtasks for PDF parsing, data extraction for different sheet formats, and manual entry form creation.",
-			"reasoning": "Parsing various character sheet formats and extracting structured data is a complex task requiring careful handling of different scenarios."
-		},
-		{
-			"taskId": 6,
-			"taskTitle": "Implement Audio Capture and Transcription Service",
-			"complexityScore": 9,
-			"recommendedSubtasks": 6,
-			"expansionPrompt": "Divide the audio capture and transcription service implementation into subtasks covering audio capture, streaming, transcription integration, and error handling.",
-			"reasoning": "This task involves real-time audio processing and integration with external services, making it highly complex."
-		},
-		{
-			"taskId": 7,
-			"taskTitle": "Develop Speaker Attribution System",
-			"complexityScore": 9,
-			"recommendedSubtasks": 5,
-			"expansionPrompt": "Break down the speaker attribution system development into subtasks for voice profile creation, attribution algorithm implementation, and manual correction UI.",
-			"reasoning": "Speaker attribution is a complex task involving machine learning techniques and handling various edge cases."
-		},
-		{
-			"taskId": 8,
-			"taskTitle": "Implement Live Play UI",
-			"complexityScore": 7,
-			"recommendedSubtasks": 6,
-			"expansionPrompt": "Divide the live play UI implementation into subtasks for each major component, including transcription display, card system, controls, and real-time updates.",
-			"reasoning": "This task involves creating a complex, real-time UI with multiple interactive components."
-		},
-		{
-			"taskId": 9,
-			"taskTitle": "Develop Transcription Analysis Engine",
-			"complexityScore": 9,
-			"recommendedSubtasks": 5,
-			"expansionPrompt": "Break down the transcription analysis engine development into subtasks for LLM integration, prompt creation, game state tracking, and context management.",
-			"reasoning": "This task involves complex natural language processing and maintaining game state, requiring sophisticated algorithms."
-		},
-		{
-			"taskId": 10,
-			"taskTitle": "Implement Text Description Card Generator",
-			"complexityScore": 7,
-			"recommendedSubtasks": 4,
-			"expansionPrompt": "Divide the text description card generator implementation into subtasks for LLM-based generation, template system creation, caching, and UI controls.",
-			"reasoning": "While leveraging LLM capabilities, this task requires careful prompt engineering and output management."
-		},
-		{
-			"taskId": 11,
-			"taskTitle": "Implement Image Generation System",
-			"complexityScore": 9,
-			"recommendedSubtasks": 6,
-			"expansionPrompt": "Break down the image generation system implementation into subtasks for API integration, face incorporation, prompt creation, queue system, and caching.",
-			"reasoning": "Generating personalized images with AI involves complex integration and handling of various scenarios."
-		},
-		{
-			"taskId": 12,
-			"taskTitle": "Implement Character Tracking System",
-			"complexityScore": 7,
-			"recommendedSubtasks": 5,
-			"expansionPrompt": "Divide the character tracking system implementation into subtasks for information extraction, automatic updates, manual update UI, and history tracking.",
-			"reasoning": "This task involves real-time data processing and maintaining complex character states."
-		},
-		{
-			"taskId": 13,
-			"taskTitle": "Implement Campaign Management System",
-			"complexityScore": 6,
-			"recommendedSubtasks": 5,
-			"expansionPrompt": "Break down the campaign management system implementation into subtasks for state saving/loading, session history, export functionality, and dashboard creation.",
-			"reasoning": "While not overly complex, this task requires careful state management and user interface design."
-		},
-		{
-			"taskId": 14,
-			"taskTitle": "Implement Voice Command System",
-			"complexityScore": 7,
-			"recommendedSubtasks": 4,
-			"expansionPrompt": "Divide the voice command system implementation into subtasks for command recognition, handler creation, natural language processing, and UI feedback.",
-			"reasoning": "Voice command systems require sophisticated natural language processing and integration with existing systems."
-		},
-		{
-			"taskId": 15,
-			"taskTitle": "Optimize Performance and Implement Error Handling",
-			"complexityScore": 8,
-			"recommendedSubtasks": 6,
-			"expansionPrompt": "Break down the performance optimization and error handling implementation into subtasks for profiling, caching, query optimization, error logging, and monitoring.",
-			"reasoning": "This task involves system-wide optimizations and comprehensive error handling, requiring in-depth knowledge of the entire application."
-		}
-	]
+  "meta": {
+    "generatedAt": "2025-06-19T17:04:54.382Z",
+    "tasksAnalyzed": 15,
+    "totalTasks": 15,
+    "analysisCount": 15,
+    "thresholdScore": 5,
+    "projectName": "Taskmaster",
+    "usedResearch": true
+  },
+  "complexityAnalysis": [
+    {
+      "taskId": 1,
+      "taskTitle": "Setup Project Repository and Base Architecture",
+      "complexityScore": 7,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Break down the setup of the project repository and base architecture into specific steps, including frontend and backend setup, configuration of development tools, and CI/CD pipeline creation.",
+      "reasoning": "This task involves setting up multiple technologies and configurations, requiring careful planning and execution."
+    },
+    {
+      "taskId": 2,
+      "taskTitle": "Design Database Schema for Campaigns and Characters",
+      "complexityScore": 6,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Divide the database schema design into subtasks for each main entity (Campaigns, Characters, Players, Sessions) and include tasks for implementing relationships and validation.",
+      "reasoning": "While not overly complex, this task requires careful consideration of data relationships and schema design."
+    },
+    {
+      "taskId": 3,
+      "taskTitle": "Implement User Authentication System",
+      "complexityScore": 7,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Break down the user authentication system implementation into subtasks covering backend authentication, frontend forms, password management, and session handling.",
+      "reasoning": "Authentication systems involve multiple components and security considerations, increasing complexity."
+    },
+    {
+      "taskId": 4,
+      "taskTitle": "Create Campaign Setup UI",
+      "complexityScore": 6,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Divide the campaign setup UI creation into subtasks for each major component, including form design, player invitation, character sheet upload, and image handling.",
+      "reasoning": "This task involves creating multiple UI components and handling various user interactions."
+    },
+    {
+      "taskId": 5,
+      "taskTitle": "Implement Character Sheet Parser",
+      "complexityScore": 8,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Break down the character sheet parser implementation into subtasks for PDF parsing, data extraction for different sheet formats, and manual entry form creation.",
+      "reasoning": "Parsing various character sheet formats and extracting structured data is a complex task requiring careful handling of different scenarios."
+    },
+    {
+      "taskId": 6,
+      "taskTitle": "Implement Audio Capture and Transcription Service",
+      "complexityScore": 9,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Divide the audio capture and transcription service implementation into subtasks covering audio capture, streaming, transcription integration, and error handling.",
+      "reasoning": "This task involves real-time audio processing and integration with external services, making it highly complex."
+    },
+    {
+      "taskId": 7,
+      "taskTitle": "Develop Speaker Attribution System",
+      "complexityScore": 9,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Break down the speaker attribution system development into subtasks for voice profile creation, attribution algorithm implementation, and manual correction UI.",
+      "reasoning": "Speaker attribution is a complex task involving machine learning techniques and handling various edge cases."
+    },
+    {
+      "taskId": 8,
+      "taskTitle": "Implement Live Play UI",
+      "complexityScore": 7,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Divide the live play UI implementation into subtasks for each major component, including transcription display, card system, controls, and real-time updates.",
+      "reasoning": "This task involves creating a complex, real-time UI with multiple interactive components."
+    },
+    {
+      "taskId": 9,
+      "taskTitle": "Develop Transcription Analysis Engine",
+      "complexityScore": 9,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Break down the transcription analysis engine development into subtasks for LLM integration, prompt creation, game state tracking, and context management.",
+      "reasoning": "This task involves complex natural language processing and maintaining game state, requiring sophisticated algorithms."
+    },
+    {
+      "taskId": 10,
+      "taskTitle": "Implement Text Description Card Generator",
+      "complexityScore": 7,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Divide the text description card generator implementation into subtasks for LLM-based generation, template system creation, caching, and UI controls.",
+      "reasoning": "While leveraging LLM capabilities, this task requires careful prompt engineering and output management."
+    },
+    {
+      "taskId": 11,
+      "taskTitle": "Implement Image Generation System",
+      "complexityScore": 9,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Break down the image generation system implementation into subtasks for API integration, face incorporation, prompt creation, queue system, and caching.",
+      "reasoning": "Generating personalized images with AI involves complex integration and handling of various scenarios."
+    },
+    {
+      "taskId": 12,
+      "taskTitle": "Implement Character Tracking System",
+      "complexityScore": 7,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Divide the character tracking system implementation into subtasks for information extraction, automatic updates, manual update UI, and history tracking.",
+      "reasoning": "This task involves real-time data processing and maintaining complex character states."
+    },
+    {
+      "taskId": 13,
+      "taskTitle": "Implement Campaign Management System",
+      "complexityScore": 6,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Break down the campaign management system implementation into subtasks for state saving/loading, session history, export functionality, and dashboard creation.",
+      "reasoning": "While not overly complex, this task requires careful state management and user interface design."
+    },
+    {
+      "taskId": 14,
+      "taskTitle": "Implement Voice Command System",
+      "complexityScore": 7,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Divide the voice command system implementation into subtasks for command recognition, handler creation, natural language processing, and UI feedback.",
+      "reasoning": "Voice command systems require sophisticated natural language processing and integration with existing systems."
+    },
+    {
+      "taskId": 15,
+      "taskTitle": "Optimize Performance and Implement Error Handling",
+      "complexityScore": 8,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Break down the performance optimization and error handling implementation into subtasks for profiling, caching, query optimization, error logging, and monitoring.",
+      "reasoning": "This task involves system-wide optimizations and comprehensive error handling, requiring in-depth knowledge of the entire application."
+    }
+  ]
 }

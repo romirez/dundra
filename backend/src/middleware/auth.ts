@@ -1,7 +1,7 @@
-import { Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import { AuthRequest } from '@/types';
 import { env } from '@/config/env';
+import { AuthRequest } from '@/types';
+import { NextFunction, Response } from 'express';
+import jwt from 'jsonwebtoken';
 
 export interface JwtPayload {
   id: string;
@@ -11,11 +11,7 @@ export interface JwtPayload {
   exp?: number;
 }
 
-export const authMiddleware = (
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-): void => {
+export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction): void => {
   try {
     // Get token from header
     const authHeader = req.header('Authorization');
@@ -24,19 +20,19 @@ export const authMiddleware = (
     if (!token) {
       res.status(401).json({
         success: false,
-        message: 'Access denied. No token provided.'
+        message: 'Access denied. No token provided.',
       });
       return;
     }
 
     // Verify token
     const decoded = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
-    
+
     // Add user to request
     req.user = {
       id: decoded.id,
       email: decoded.email,
-      name: decoded.name
+      name: decoded.name,
     };
 
     next();
@@ -44,7 +40,7 @@ export const authMiddleware = (
     if (error instanceof jwt.JsonWebTokenError) {
       res.status(401).json({
         success: false,
-        message: 'Invalid token.'
+        message: 'Invalid token.',
       });
       return;
     }
@@ -52,14 +48,14 @@ export const authMiddleware = (
     if (error instanceof jwt.TokenExpiredError) {
       res.status(401).json({
         success: false,
-        message: 'Token expired.'
+        message: 'Token expired.',
       });
       return;
     }
 
     res.status(500).json({
       success: false,
-      message: 'Server error during authentication.'
+      message: 'Server error during authentication.',
     });
   }
 };
@@ -79,13 +75,13 @@ export const optionalAuthMiddleware = (
       req.user = {
         id: decoded.id,
         email: decoded.email,
-        name: decoded.name
+        name: decoded.name,
       };
     }
 
     next();
-  } catch (error) {
+  } catch {
     // Continue without auth if token is invalid
     next();
   }
-}; 
+};

@@ -8,4 +8,4 @@ Common utilities, types, and constants shared between frontend and backend.
 - Utility functions
 - Constants and configuration
 - Validation schemas
-- API interface definitions 
+- API interface definitions
