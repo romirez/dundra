@@ -49,14 +49,14 @@ jobs:
           npm ci --prefix frontend
 
       - name: Restore backend build cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: backend/dist
           key: backend-build-${{ env.CACHE_VERSION }}-${{ github.event.workflow_run.head_sha }}
           fail-on-cache-miss: true
 
       - name: Restore frontend build cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: frontend/dist
           key: frontend-build-${{ env.CACHE_VERSION }}-${{ github.event.workflow_run.head_sha }}
@@ -134,14 +134,14 @@ jobs:
           npm ci --prefix frontend
 
       - name: Restore backend build cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: backend/dist
           key: backend-build-${{ env.CACHE_VERSION }}-${{ github.event.workflow_run.head_sha }}
           fail-on-cache-miss: true
 
       - name: Restore frontend build cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: frontend/dist
           key: frontend-build-${{ env.CACHE_VERSION }}-${{ github.event.workflow_run.head_sha }}
