@@ -141,7 +141,7 @@ jobs:
         working-directory: ./backend
 
       - name: Cache backend build
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: backend/dist
           key: backend-build-${{ env.CACHE_VERSION }}-${{ github.sha }}
@@ -249,7 +249,7 @@ jobs:
           CI: true
 
       - name: Cache frontend build
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: frontend/dist
           key: frontend-build-${{ env.CACHE_VERSION }}-${{ github.sha }}
